@@ -155,3 +155,9 @@ const camera =
         "powerConsumptionWh": 26,
     }]
 ;
+
+
+class Page{
+    
+
+}
