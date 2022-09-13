@@ -157,7 +157,74 @@ const camera =
 ;
 
 
-class Page{
-    
-
+class Camera {
+    constructor(brand, model, powerConsumptionWh) {
+        this.brand = brand;
+        this.model = model;
+        this.powerConsumptionWh = powerConsumptionWh;
+    }
 }
+
+//-------------------------step1-------------------------
+//配列を作成
+let cameraObjects = [];
+camera.forEach(tmp => {
+    cameraObjects.push(new Camera(tmp.brand, tmp.model, tmp.powerConsumptionWh));
+});
+
+let brand = {}
+for (let i = 0; i < cameraObjects.length; i++) {
+    if((cameraObjects[i].brand) in brand)continue;
+    else brand[cameraObjects[i].brand] = cameraObjects[i].brand; 
+}
+
+//option作成
+const selectBrandEle = document.getElementById("selectBrand");
+for (key in brand){
+    let optionEle = document.createElement("option");
+    optionEle.textContent = `${key}`;
+    selectBrandEle.appendChild(optionEle);
+}
+console.log(brand);
+
+//-------------------------step2-------------------------
+
+//step1 selectのbrand読み取り
+let currentBrand = selectBrandEle.value;
+
+//brandのModel取得
+function getModel (brand){
+    let modelList = {};
+    for(let i = 0; i < cameraObjects.length; i++){
+        if(cameraObjects[i].brand === brand){
+            modelList[cameraObjects[i].model] = cameraObjects[i].model;
+        } 
+    }
+    return modelList;
+}
+let list1 = getModel(currentBrand);
+console.log(list1);
+
+
+//初期option作成
+const selectModelEle = document.getElementById("selectModel");
+
+function updateModelElements(modelList){
+    selectModelEle.innerHTML = "";
+    for(key in modelList){
+        let optionEle = document.createElement("option");
+        optionEle.textContent = `${key}`;
+        selectModelEle.appendChild(optionEle);        
+    }
+}
+
+let initModelcreate = updateModelElements(list1);
+
+//option更新
+selectBrandEle.addEventListener('change', function(){
+    currentBrand = selectBrandEle.value;
+    let modellist = getModel(currentBrand);
+    let updateModelcreate = updateModelElements(modellist)
+});
+
+//-------------------------step3-------------------------
