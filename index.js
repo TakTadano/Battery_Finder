@@ -165,12 +165,30 @@ class Camera {
     }
 }
 
-//-------------------------step1-------------------------
+class Battery {
+    constructor(batteryName, capacityAh, voltage, maxDraw, endVoltage){
+        this.battery = batteryName;
+        this.capacityAh = capacityAh;
+        this.voltage = voltage;
+        this.maxDraw = maxDraw;
+        this.endVoltage = endVoltage;
+    }
+}
+
 //配列を作成
 let cameraObjects = [];
 camera.forEach(tmp => {
     cameraObjects.push(new Camera(tmp.brand, tmp.model, tmp.powerConsumptionWh));
 });
+
+let batteryObjects = [];
+battery.forEach(tmp => {
+    batteryObjects.push(new Battery(tmp.batteryName, tmp.capacityAh, tmp.voltage, tmp.maxDraw, tmp.endVoltage));
+});
+
+//console.log(batteryObjects[0].voltage);
+
+//-------------------------step1-------------------------
 
 let brand = {}
 for (let i = 0; i < cameraObjects.length; i++) {
@@ -224,7 +242,38 @@ let initModelcreate = updateModelElements(list1);
 selectBrandEle.addEventListener('change', function(){
     currentBrand = selectBrandEle.value;
     let modellist = getModel(currentBrand);
-    let updateModelcreate = updateModelElements(modellist)
+    updateModelElements(modellist);
 });
 
 //-------------------------step3-------------------------
+
+//inputの値取得
+const inputPowerEle = document.getElementById("inputPower");
+let currentPower = inputPowerEle.value;
+
+
+inputPowerEle.addEventListener('change', function(){
+    currentPower = inputPowerEle.value;
+    console.log(currentPower);
+});
+
+//-------------------------step4-------------------------
+
+//update関数
+let step4Div = document.getElementById("step4");
+
+let displayBattery = document.createElement("div");
+step4Div.append(displayBattery);
+function getBattery(model){
+    
+    let html = `
+    <div class="mb-0 bg-light border border-secondary rounded d-flex justify-content-between align-items-center">
+        <p class="pt-2 pb-2 m-0">sdfsa</p>
+        <p class="m-0">fsdafg</p>
+    </div>
+    `;
+
+    displayBattery
+}
+
+getBattery("sfas");
