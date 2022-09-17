@@ -77,6 +77,11 @@ const battery =
         "endVoltage": 12,
     }]
 ;
+//バッテリーの並び替え
+battery.sort(function(a, b){
+    if(a.batteryName > b.batteryName) return 1;
+    else return -1;
+});
 
 const camera =
     [{
@@ -167,23 +172,68 @@ class Camera {
 
 class Battery {
     constructor(batteryName, capacityAh, voltage, maxDraw, endVoltage){
-        this.battery = batteryName;
+        this.batteryName = batteryName;
         this.capacityAh = capacityAh;
         this.voltage = voltage;
         this.maxDraw = maxDraw;
         this.endVoltage = endVoltage;
     }
+
+    maxWatt(){
+        return this.capacityAh * this.voltage;
+    };
+
+    endWatt(){
+        return this.maxDraw * this.endVoltage;
+    }
+
+    maxUseHour(sumWatt){
+        return (this.maxWatt() / sumWatt).toFixed(1);
+    }
+/*
+    createBattElement(sumWatt){
+        const battEleDiv = document.createElement("div");
+        battEleDiv.classList.add("mb-0", "bg-light", "border", "border-secondary", "rounded", "d-flex", "justify-content-between", "align-items-center", "flex-row");
+        const battNameP = document.createElement("p");
+        battNameP.classList.add("pt-2", "pb-2", "mb-0");
+        const battNameS = document.createElement("strong");
+        battNameS.innerHTML = this.batteryName;
+        battNameP.append(battNameS);
+        const battInfoP = document.createElement("p");
+        battInfoP.classList.add('pl-2', 'pb-2', 'pt-2', 'mt-0', 'mb-0', 'ml-0', 'mr-2');
+        battEleDiv.innerHTML = 'Estimate ' + this.maxUseHour(sumWatt) + ' hours';
+        battEleDiv.append(battNameP, battInfoP);
+        return battEleDiv;
+    }
+*/
+    createBattElement(sumWatt){
+        const battEleDiv = document.createElement('div');
+        battEleDiv.classList.add('w-100', 'bg-light', 'border', 'border-secondary', 'd-flex', 'flex-row', 'justify-content-between', 'align-items-center');
+        const battNameP = document.createElement('p');
+        battNameP.classList.add('pl-2', 'pb-2', 'pt-2', 'm-0');
+        const battNameS = document.createElement('strong');
+        battNameS.innerHTML = this.batteryName;
+        battNameP.append(battNameS);
+        const battInfoP = document.createElement('p');
+        battInfoP.classList.add('pl-2', 'pb-2', 'pt-2', 'mt-0', 'mb-0', 'ml-0', 'mr-2');
+        battInfoP.innerHTML = 'Estimate ' + this.maxUseHour(sumWatt) + ' hours';
+        battEleDiv.append(battNameP, battInfoP);
+        return battEleDiv;
+    }
 }
+
+
+
 
 //配列を作成
 let cameraObjects = [];
 camera.forEach(tmp => {
-    cameraObjects.push(new Camera(tmp.brand, tmp.model, tmp.powerConsumptionWh));
+    cameraObjects.push(new Camera(tmp['brand'], tmp['model'], tmp['powerConsumptionWh']));
 });
 
 let batteryObjects = [];
 battery.forEach(tmp => {
-    batteryObjects.push(new Battery(tmp.batteryName, tmp.capacityAh, tmp.voltage, tmp.maxDraw, tmp.endVoltage));
+    batteryObjects.push(new Battery(tmp['batteryName'], tmp['capacityAh'], tmp['voltage'], tmp['maxDraw'], tmp['endVoltage']));
 });
 
 //console.log(batteryObjects[0].voltage);
@@ -255,25 +305,31 @@ let currentPower = inputPowerEle.value;
 inputPowerEle.addEventListener('change', function(){
     currentPower = inputPowerEle.value;
     console.log(currentPower);
+    updateBattList();
 });
 
 //-------------------------step4-------------------------
+//console.log(selectModelEle.value);
+//console.log(cameraObjects[selectModelEle.value]);
 
-//update関数
-let step4Div = document.getElementById("step4");
+//連想配列
+let currentPowerAh = {};
+for(let i = 0; i < camera.length; i++){
+    currentPowerAh[camera[i].model] = camera[i].powerConsumptionWh;
+};
 
-let displayBattery = document.createElement("div");
-step4Div.append(displayBattery);
-function getBattery(model){
-    
-    let html = `
-    <div class="mb-0 bg-light border border-secondary rounded d-flex justify-content-between align-items-center">
-        <p class="pt-2 pb-2 m-0">sdfsa</p>
-        <p class="m-0">fsdafg</p>
-    </div>
-    `;
+//batteryの初期リストを作成
+const batteryTopDiv = document.getElementById("battery-list");
+batteryObjects.forEach( battObj => {
+    batteryTopDiv.append(battObj.createBattElement(parseInt(currentPower) + currentPowerAh[selectModelEle.value]));
+});
 
-    displayBattery
-}
-
-getBattery("sfas");
+function updateBattList(){
+    const sumWatt = parseInt(currentPower) + currentPowerAh[selectModelEle.value];
+    batteryTopDiv.innerHTML = "";
+    batteryObjects.forEach(batt => {
+        if(batt.endWatt() > sumWatt){
+            batteryTopDiv.append(batt.createBattElement(sumWatt));
+        }
+    });
+};
